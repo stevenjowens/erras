@@ -1,0 +1,13 @@
+[Unit]
+Description=Erras RFID Reader
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /home/pi/erras/erras_rfid_reader.py
+WorkingDirectory=/home/pi
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

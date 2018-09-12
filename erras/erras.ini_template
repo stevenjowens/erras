@@ -1,0 +1,39 @@
+[erras]
+# TODO: We're not actually using clientname for anything in the scripst,et.
+clientname = your-client-name
+#################################################################
+# wildapricot API configs
+wa_api_client_id = your-wildapricot-api-client-id
+wa_api_client_secret = your-wild-apricot-api-client-secret
+credential_name = your-wildapricot-credential-name
+credential_key = your-wildapricot-crednetial-key
+# Note, the following key is not currently used by code and may be expired
+api_key = your-wildapricot-api-key
+# Filter query to use when requesting member data from wildapricot API
+filter_query = status eq Active or status eq 'Pending - Renewal'
+request_url_root = v2/accounts/your-wild-apricot-account-number/Contacts
+#################################################################
+# CSV configs
+csv_backup_filename_root = erras_backup_members_
+csv_filename_temp = erras_members_new.csv
+csv_filename = erras_members.csv
+# How many csv backups to keep
+csv_prune_max = 5
+#################################################################
+# wildapricot
+# re-download the wildapricot data every loop_delay seconds
+loop_delay = 500
+# Note, can use comma-separated multiple values, NO space after the comma.
+# Key fields for keypad codes
+keypad_field_names = Keypad
+# Key fields for RFID reader values
+rfid_field_names = Door Key
+#################################################################
+# log file configs
+members_log_filename = erras_members.log
+rfid_reader_log_filename = erras_rfid_reader.log
+activate_log_filename = erras_activate.log
+# filename root for request JSON logs
+apricot_response_root = wild_apricot_response_
+# How many request JSON logs to keep
+json_prune_max = 10

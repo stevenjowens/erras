@@ -1,0 +1,16 @@
+[Unit]
+Description=Erras Membership Download Service
+After=multi-user.target syslog.target network.target
+
+#[Timer]
+#OnBootSec=30s
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /home/pi/erras/erras_members.py
+WorkingDirectory=/home/pi
+Restart=on-failure
+
+
+[Install]
+WantedBy=multi-user.target
