@@ -1,4 +1,8 @@
 r"""
+Note, this is based on https://github.com/WildApricot/ApiSamples/tree/master/python
+
+The code has been modified to allow logging of the raw JSON responses.
+
 This module provides set of classes for working with WildApricot public API v2.
 Public API documentation can be found here: http://help.wildapricot.com/display/DOC/API+Version+2
 
@@ -21,9 +25,6 @@ import json
 import base64
 
 class WaApiClient(object):
-    # Based on https://github.com/WildApricot/ApiSamples/tree/master/python
-    # I think by Dmitry Smirnov: 
-    # https://forums.wildapricot.com/forums/309658-developers/suggestions/8822047-api-v2-authentication-and-sample-routines-in-pytho
     """Wild apricot API client."""
     auth_endpoint = "https://oauth.wildapricot.org/auth/token"
     api_endpoint = "https://api.wildapricot.org"
