@@ -3,6 +3,7 @@
 clientname = your-client-name
 #################################################################
 # wildapricot API configs
+# for more information on these, see the WildApricot docs.
 wa_api_client_id = your-wildapricot-api-client-id
 wa_api_client_secret = your-wild-apricot-api-client-secret
 credential_name = your-wildapricot-credential-name
@@ -14,16 +15,28 @@ filter_query = status eq Active or status eq 'Pending - Renewal'
 request_url_root = v2/accounts/your-wild-apricot-account-number/Contacts
 #################################################################
 # CSV configs
+## backup csv files will be named root_timestamp.cvs
+## where root is defined by csv_backup_filename_root
+## and timestamp is defined by the python datetime format string:
+## "%Y%m%d-%H%M%S"
+## i.e. September 12, 2018, 3:48:05 would be formatted as:
+## "20180912-034805"
 csv_backup_filename_root = erras_backup_members_
+## The name of the temporary file that new member data is saved to, before renaming.
 csv_filename_temp = erras_members_new.csv
+## The name of the file that member data is saved to and loaded from.
 csv_filename = erras_members.csv
-# How many csv backups to keep
+## How many csv backups to keep
+###  e.g. if 5, when a 6th backup CSV file is written, the 1st will be removed.
 csv_prune_max = 5
 #################################################################
 # wildapricot
 # re-download the wildapricot data every loop_delay seconds
 loop_delay = 500
 # Note, can use comma-separated multiple values, NO space after the comma.
+# for example:
+# keypad_field_names = keypad1,keypad2
+#
 # Key fields for keypad codes
 keypad_field_names = Keypad
 # Key fields for RFID reader values
