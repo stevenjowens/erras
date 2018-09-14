@@ -18,7 +18,7 @@ There is no relationship whatsoever between these two facts.
 
 Note, this assumes a raspbian environment, which has certain libraries installed by default.
 
-So far this consists of five files:
+So far Erras consists of five files:
 
 - members.csv contains member data
 - erras_members.py downloads members.csv
@@ -29,20 +29,18 @@ Also two systemd unit files to set up automatically starting the python scripts 
 - erras_members.service
 - erras_rfid_reader.service
 
-To install the system:
+Also, a (slightly hacked) copy of the Wild Apricot API python implementation, WaApi.py, is included.
+
+- WaApi.py
+
+To install the system, after cloning it or downloading it from github:
+
+First, copy the erras directory and its files onto the raspberry pi (note the trailing backslashes in the rsync command, be sure to include those on both arguments) and copy the erras_services directory's contents onto the raspberry pi:
 
 ```
-$ scp erras_members.py pi@raspberrypi:/home/pi
-$ scp erras_rfid_reader.py pi@raspberrypi:/home/pi
-$ scp erras.ini pi@raspberrypi:/home/pi
-```
-
-To set up the systemd stuff requires copying the files into root-owned directories, so you'll
-have to two-step it:
-
-```
-$ scp erras_rfid_reader.service pi@raspberrypi:/home/pi
-$ scp erras_members.service pi@raspberrypi:/home/pi
+$ rsync -avz ./erras/ pi@raspberrypi:/home/pi/erras/
+$ scp ./erras_services/erras_members.service pi@raspberrypi:/home/pi
+$ scp ./erras_services/erras_rfid_reader.service pi@raspberrypi:/home/pi
 ```
 
 Then ssh into the raspberripi and:
@@ -50,8 +48,8 @@ Then ssh into the raspberripi and:
 Move the systemd service files into ```/lib/systemd/system```:
 
 ```
-$ sudo mv erras_rfid_reader.service /lib/systemd/system/erras_rfid_reader.service 
-$ sudo mv erras_members.service /lib/systemd/system/erras_members.service
+$ sudo mv /home/pi/erras_rfid_reader.service /lib/systemd/system/erras_rfid_reader.service 
+$ sudo mv /home/pi/erras_members.service /lib/systemd/system/erras_members.service
 ```
 
 Chmod the service files to 644:
