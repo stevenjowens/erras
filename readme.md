@@ -107,7 +107,7 @@ Note that because the scripts use python logging, you should see almost no outpu
 
 ## Background and Troubleshooting
 
-For specific details on the hardware, see the hardware.md, but broadly speaking, the ERRAS system is comprised of:
+For specific details on the hardware, see the [Hardware List](hardware.md), but broadly speaking, the ERRAS system is comprised of:
 
 - a wild apricot database (see below)
 - an RFID reader, optionally with a keypad for manual entry
