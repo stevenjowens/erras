@@ -10,7 +10,6 @@ they think *"tu erras"* translates as "you wandered":
 
 'Par example, la phrase, *"tu arras dans la campagne"* veut dire en Anglais, "you wandered around the countryside".'
 
-
 There is no relationship whatsoever between these two facts.
 
 # Installation Instructions
@@ -109,12 +108,12 @@ Note that because the scripts use python logging, you should see almost no outpu
 
 For specific details on the hardware, see the hardware.md, but broadly speaking, the ERRAS system is comprised of:
 
-- a wildapricot database (see below)
+- a wild apricot database (see below)
 - an RFID reader, optionally with a keypad for manual entry
 - an arduino that reads from the RFID reader
 - a raspberry pi that reads serial from the arduino
 - erras.ini, a config file
-- erras_members.py, downloads member data from wildapricot
+- erras_members.py, downloads member data from wild apricot
 - erras_rfid_reader.py, loads data and responds to RFID reader
 - an electronic device to activate (relay, electric lock, etc)
 
@@ -128,9 +127,9 @@ The arduino prefixs the value with an R to indicate it's from the RFID reader, o
 
 The arduino begins the value with ASCII_STX and ends with ASCII_ETX.  
 
-## Wildapricot Database
+## Wild Apricot Database
 
-The wildapricot database must contain one or more custom fields that contain RFID values or keypad codes.  Erras supports multiple field names, comma-separated.
+The wild apricot database must contain one or more custom fields that contain RFID values or keypad codes.  Erras supports multiple field names, comma-separated.
 
 Note that these values are treated throughout the system as strings, they are not parsed as ints for comparison purposes, etc.
 
@@ -142,7 +141,7 @@ erras_members.py downloads the member data, including the custom fields, and sav
 
 erras_rfid_reader.py starts up, reads and parses the CSV file, then goes into an infinite loop reading from the arduino serial port.  
 
-Each time erras_rfid_reader.py loops, it checks the file modification date of the CSV file and reloads it if it is changed.  This means that if new member data is added to wildapricot, you must a) wait long enough for erras_members.py to download it, then b) swipe the RFID reader or enter a keypad code to get erras_rfid_reader.py to loop so it checks the file modification date.
+Each time erras_rfid_reader.py loops, it checks the file modification date of the CSV file and reloads it if it is changed.  This means that if new member data is added to wild apricot, you must a) wait long enough for erras_members.py to download it, then b) swipe the RFID reader or enter a keypad code to get erras_rfid_reader.py to loop so it checks the file modification date.
 
 If erras_rfid_reader.py receives a value from the serial port, it checks for an R (for RFID) or K (for keypad) prefix. It ignores any value that doesn't have a prefix.
 
@@ -204,3 +203,25 @@ In the event a service failed to start, for more complete log info, use journalc
 ```
 $ sudo journalctl -fu
 ```
+
+# License
+
+ERRAS is licensed under the MIT license.  See [./LICENSE.md]
+
+Portions of this repo which include code from other sources, e.g. the Wild Apricot Python API, are provided here for your convenience and governed by their respective licenses.
+
+See [https://github.com/WildApricot/ApiSamples/tree/master/python]
+
+## WaApi License
+
+In accordance with the license for the Wild Apricot Python API, the license text is included here:
+
+License
+
+Copyright 2018, Wild Apricot Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
