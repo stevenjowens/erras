@@ -174,7 +174,8 @@ class WaApiClient(object):
             return None
 
     def get_timestamp(self):
-        return datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        format_string = "%Y%m%d-%H%M%S"
+        return datetime.datetime.utcnow().strftime(format_string)
     
 
 class ApiException(Exception):

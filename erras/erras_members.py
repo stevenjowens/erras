@@ -39,12 +39,13 @@ class ErrasFiles(object):
         
     # For debugging the json returned by wildapricot, not currently used.
     def log_contact(self, contact):
+        default_field_name = "default"
         k_field_values = dict()
         for name in self.keypad_field_names:
-            k_field_values[name] = self.get_field_value(contact, name, "default")
+            k_field_values[name] = self.get_field_value(contact, name, default_field_name)
         r_field_values = dict()
         for name in self.rfid_field_names:
-            r_field_values[name] = self.get_field_value(contact, name, "default")
+            r_field_values[name] = self.get_field_value(contact, name, default_field_name)
         self.log.debug("DisplayName: %s" % contact.DisplayName)
         self.log.debug("Status: %s" % contact.Status)
         self.log.debug("Email: %s" % contact.Email)
@@ -221,28 +222,29 @@ class ErrasFiles(object):
 
 parser = ConfigParser()
 config_file_name = 'erras.ini'
+section_name = "erras"
 # This constructs a file path to the config_file_name in the same directory as the script file.
 config_path = str(pathlib.Path(__file__).with_name(config_file_name))
 with open(config_path) as config_file:
     parser.read_file(config_file)
 
-wa_api_client_id = parser.get("erras", "wa_api_client_id")
-wa_api_client_secret = parser.get("erras", "wa_api_client_secret")
-credential_name = parser.get("erras", "credential_name")
-credential_key = parser.get("erras", "credential_key")
-api_key = parser.get("erras", "api_key")
-filter_query = parser.get("erras", "filter_query", fallback="status eq Active or status eq 'Pending - Renewal'")
-request_url_root = parser.get("erras", "request_url_root")
-csv_backup_filename_root = parser.get("erras", "csv_backup_filename_root", fallback="erras_backup_members_")
-csv_filename_temp = parser.get("erras", "csv_filename_temp", fallback="erras_members_new.csv")
-csv_filename = parser.get("erras", "csv_filename", fallback="erras_members.csv")
-apricot_response_root = parser.get("erras", "apricot_response_root", fallback="wild_apricot_response_")
-loop_delay = parser.getint("erras", "loop_delay", fallback=500)
-csv_prune_max = parser.getint("erras", "csv_prune_max", fallback=5)
-json_prune_max = parser.getint("erras", "json_prune_max", fallback=5)
-log_filename = parser.get("erras", "members_log_filename", fallback="erras_members.log")
-keypad_field_names_string = parser.get("erras", "keypad_field_names", fallback="Keypad")
-rfid_field_names_string = parser.get("erras", "rfid_field_names", fallback="RFID")
+wa_api_client_id = parser.get(section_name, "wa_api_client_id")
+wa_api_client_secret = parser.get(section_name, "wa_api_client_secret")
+credential_name = parser.get(section_name, "credential_name")
+credential_key = parser.get(section_name, "credential_key")
+api_key = parser.get(section_name, "api_key")
+filter_query = parser.get(section_name, "filter_query", fallback="status eq Active or status eq 'Pending - Renewal'")
+request_url_root = parser.get(section_name, "request_url_root")
+csv_backup_filename_root = parser.get(section_name, "csv_backup_filename_root", fallback="erras_backup_members_")
+csv_filename_temp = parser.get(section_name, "csv_filename_temp", fallback="erras_members_new.csv")
+csv_filename = parser.get(section_name, "csv_filename", fallback="erras_members.csv")
+apricot_response_root = parser.get(section_name, "apricot_response_root", fallback="wild_apricot_response_")
+loop_delay = parser.getint(section_name, "loop_delay", fallback=500)
+csv_prune_max = parser.getint(section_name, "csv_prune_max", fallback=5)
+json_prune_max = parser.getint(section_name, "json_prune_max", fallback=5)
+log_filename = parser.get(section_name, "members_log_filename", fallback="erras_members.log")
+keypad_field_names_string = parser.get(section_name, "keypad_field_names", fallback="Keypad")
+rfid_field_names_string = parser.get(section_name, "rfid_field_names", fallback="RFID")
 # Split up the key_fields_string into a list.
 # TODO: look into this later for split with escape
 # https://stackoverflow.com/questions/18092354/python-split-string-without-splitting-escaped-character
@@ -250,15 +252,17 @@ keypad_field_names = keypad_field_names_string.split(",")
 rfid_field_names = rfid_field_names_string.split(",")
 
 # set up logger
-log = logging.getLogger('erras_members')
+logger_name = "erras_members"
+logger_format = '%(asctime)s %(levelname)s %(message)s'
+log = logging.getLogger(logger_name)
 log.setLevel(logging.DEBUG)
+formatter = logging.Formatter(logger_format)
 
 # https://docs.python.org/2/library/logging.handlers.html
 # how often the log file is rotated is interval * when
 # when = S/M/H/D/W0-W6/midnight
 # so when='S', interval=500 means every 500 seconds.
 handler = TimedRotatingFileHandler(log_filename, when='D', interval=1, backupCount=20)
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 handler.setFormatter(formatter)
 # handler.setLevel(logging.INFO)
 handler.setLevel(logging.DEBUG)
@@ -280,10 +284,12 @@ api.authenticate_with_contact_credentials(credential_name, credential_key)
 log.info("Starting request loop.")
 while(True):
     log.info("########################### requesting member data ############################")
-    params = { '$filter': filter_query, '$async': 'false' }
+    params = { '$filter': filter_query,
+               '$async': 'false' }
+
     request_url = request_url_root + '?' + urllib.parse.urlencode(params)
-    
     log.debug("Request url is: %s" % request_url)
+
     contacts = api.execute_request(request_url)
     # each contact is an ApiObject instance
     contact_list = contacts.Contacts
@@ -304,20 +310,5 @@ while(True):
     errasfile.prune(directory, csv_backup_filename_root, ".csv", csv_prune_max)
     errasfile.prune(directory, apricot_response_root, ".json", json_prune_max)
 
-    # This version lists the members with Status=Active and writes them
-    # into an excel-formatted CSV file.  Enjoy!
-    #
-    # I've included most of the fields that are present in every member
-    # contact.
-    #
-    # If you want to modify the fields or order of fields in the CSV file,
-    # modify the functions contacts_to_list() and contact_to_list().
-    # 
-    # If you want to see a dump of the entire contact record for each
-    # member, add this line near the end of the program:
-    #
-    # pprint(todict(contact))
-    #
-    # Be warned, pprint(todict(contact)) is pretty spammy.
     log.info("Sleeping for %d seconds." % loop_delay)
     time.sleep(loop_delay)

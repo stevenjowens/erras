@@ -233,17 +233,18 @@ class Activator(object):
 # TODO: delete the above defaults dict after testing fallback
 
 parser = ConfigParser()
+section_name = "erras"
 config_file_name = 'erras.ini'
 # This constructs a file path to the config_file_name in the same directory as the script file.
 config_path = str(pathlib.Path(__file__).with_name(config_file_name))
 with open(config_path) as config_file:
     parser.read_file(config_file)
 
-csv_filename = parser.get("erras", "csv_filename", fallback="erras_members.csv")
-log_filename = parser.get("erras", "rfid_reader_log_filename", fallback="erras_rfid_reader.log")
-log_filename = parser.get("erras", "activate_log_filename", fallback="erras_activate.log")
-keypad_field_names_string = parser.get("erras", "keypad_field_names", fallback="Keypad")
-rfid_field_names_string = parser.get("erras", "rfid_field_names", fallback="RFID")
+csv_filename = parser.get(section_name, "csv_filename", fallback="erras_members.csv")
+log_filename = parser.get(section_name, "rfid_reader_log_filename", fallback="erras_rfid_reader.log")
+log_filename = parser.get(section_name, "activate_log_filename", fallback="erras_activate.log")
+keypad_field_names_string = parser.get(section_name, "keypad_field_names", fallback="Keypad")
+rfid_field_names_string = parser.get(section_name, "rfid_field_names", fallback="RFID")
 
 # Split up the keypad_field_names_string into a list.
 # TODO: look into this later for split with escape
@@ -252,8 +253,10 @@ keypad_field_names = keypad_field_names_string.split(",")
 rfid_field_names = rfid_field_names_string.split(",")
 
 # set up logger
-log = logging.getLogger('erras_activator')
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+logger_name = "erras_activator"
+logger_format = '%(asctime)s %(levelname)s %(message)s'
+log = logging.getLogger(logger_name)
+formatter = logging.Formatter(logger_format)
 log.setLevel(logging.DEBUG)
 
 # https://docs.python.org/2/library/logging.handlers.html
@@ -267,6 +270,7 @@ handler.setLevel(logging.DEBUG)
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
+# Handler for just logging access results (WARNING level log messages)
 activate_handler = TimedRotatingFileHandler(activate_log_filename, when='D', interval=1, backupCount=90)
 activate_handler.setFormatter(formatter)
 activate_handler.setLevel(logging.WARNING)
