@@ -209,11 +209,11 @@ $ sudo journalctl -fu
 
 # License
 
-ERRAS is licensed under the MIT license.  See [./LICENSE.md]
+ERRAS is licensed under the MIT license.  See (./LICENSE.md)
 
 Portions of this repo which include code from other sources, e.g. the Wild Apricot Python API, are provided here for your convenience and governed by their respective licenses.
 
-See [https://github.com/WildApricot/ApiSamples/tree/master/python]
+See [Wild Apricot API Github repo](https://github.com/WildApricot/ApiSamples/tree/master/python)
 
 ## WaApi License
 
