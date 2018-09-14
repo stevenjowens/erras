@@ -1,3 +1,5 @@
+# ERRAS
+
 ERRAS stands for Experimental RFID Reader Activation System
 
 "Erras" also, coincidentally, is the second-person singular past
@@ -12,7 +14,7 @@ they think *"tu erras"* translates as "you wandered":
 
 There is no relationship whatsoever between these two facts.
 
-# Installation Instructions
+## Installation Instructions
 
 Note, this assumes a raspbian environment, which has certain libraries installed by default.
 
@@ -105,7 +107,7 @@ $ python3 erras_readers.py
 
 Note that because the scripts use python logging, you should see almost no output to stdout.
 
-# Background and Troubleshooting
+## Background and Troubleshooting
 
 For specific details on the hardware, see the hardware.md, but broadly speaking, the ERRAS system is comprised of:
 
@@ -120,7 +122,7 @@ For specific details on the hardware, see the hardware.md, but broadly speaking,
 
 Note: This high-level description does not include configuration variable names.
 
-## Arduino
+### Arduino
 
 The arduino implements the weigand protocol to read from the RFID reader (and optional keypad) and sends any values received over the serial port to erras_rfid_reader.py, as ASCII.
 
@@ -128,17 +130,17 @@ The arduino prefixs the value with an R to indicate it's from the RFID reader, o
 
 The arduino begins the value with ASCII_STX and ends with ASCII_ETX.  
 
-## Wild Apricot Database
+### Wild Apricot Database
 
 The wild apricot database must contain one or more custom fields that contain RFID values or keypad codes.  Erras supports multiple field names, comma-separated.
 
 Note that these values are treated throughout the system as strings, they are not parsed as ints for comparison purposes, etc.
 
-## erras_members.py
+### erras_members.py
 
 erras_members.py downloads the member data, including the custom fields, and saves it as a csv file.  It also saves each CSV download in a backup timestamped file, pruning older files.  Then it sleeps for a period (default is 500 seconds), then downloads a fresh copy.
 
-## erras_rfid_reader.py
+### erras_rfid_reader.py
 
 erras_rfid_reader.py starts up, reads and parses the CSV file, then goes into an infinite loop reading from the arduino serial port.  
 
@@ -164,7 +166,7 @@ To see the status of a given systemd unit:
 $ systemctl status erras_rfid_reader
 ```
 
-## journalctl
+### journalctl
 
 When troubleshooting, also check journalctl for more complete logging information.
 
@@ -174,7 +176,7 @@ Try this combo:
 $ systemctl start erras_rfid_reader && journalctl -fu
 ```
 
-## Status
+### Status
 
 To see the current status of the services:
 
