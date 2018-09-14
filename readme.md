@@ -57,6 +57,7 @@ Chmod the service files to 644:
 ```
 $ sudo chmod 644 /lib/systemd/system/erras_rfid_reader.service   
 $ sudo chmod 644 /lib/systemd/system/erras_members.service
+```
 
 Reload the systemd daemon:
 
