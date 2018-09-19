@@ -215,7 +215,7 @@ See [Wild Apricot API Github repo](https://github.com/WildApricot/ApiSamples/tre
 
 ## WaApi License
 
-In accordance with the license for the Wild Apricot Python API, the license text is included here:
+In accordance with the license for the Wild Apricot Python API, the license text is included here, and [here](WaApi_LICENSE.md).
 
 License
 
