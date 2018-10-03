@@ -14,6 +14,7 @@ import sys  # for checking python version
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from configparser import ConfigParser
+import pathlib # for finding the ini file in the same directory as this script file.
 # TODO: trying to use systemd for logging causes errors on the raspberrypi.
 # TODO: still working on figuring it out.
 # from systemd.journal import JournaldLogHandler  
@@ -45,7 +46,7 @@ class MemberDb(object):
         currentmtime = os.path.getmtime(self.csv_filename)
         # self.log.info("old time = %d, current time = %d, diff = %d" % (self.mtime, currentmtime, (currentmtime - self.mtime)))
         if currentmtime > self.mtime:
-            self.log.info("%s modification time changed, reloading." % csv_filename) 
+            self.log.info("%s modification time changed, reloading." % self.csv_filename) 
             self.load_csv()
             self.mtime = currentmtime
 
@@ -54,16 +55,16 @@ class MemberDb(object):
             try:
                 # self.door_keypad_codes[int(value)] = member
                 self.door_keypad_codes[value] = member
-                log.debug("Setting keypad code for %s=%s" % (member.displayName, value))
+                self.log.debug("Setting keypad code for %s=%s" % (member.displayName, value))
             except:
                 log.info("Exception on parsing key value for member \"%s\", %s=%s: Exception: %s" % (member.displayName, key, value, sys.exc_info()[0]))
         for key, value in member.rfid_fields.items():
             try:
                 # self.door_rfid_codes[int(value)] = member
                 self.door_rfid_codes[value] = member
-                log.debug("Setting RFID code for %s=%s" % (member.displayName, value))
+                self.log.debug("Setting RFID code for %s=%s" % (member.displayName, value))
             except:
-                log.info("Exception on parsing key value for member \"%s\", %s=%s, Exception: %s" % (member.displayName, key, value, sys.exc_info()[0]))
+                self.log.info("Exception on parsing key value for member \"%s\", %s=%s, Exception: %s" % (member.displayName, key, value, sys.exc_info()[0]))
 
     # TODO:  Think about extracting all the CSV stuff to a separate class
     def extract_fields(self, row, field_names):
@@ -141,9 +142,9 @@ class RfidReader(object):
 
         if sys.version_info[0] < 3:
             # flushInput() is deprecated after 3.0, use reset_input_buffer() instead
-            rfidreader.portRF.reset_input_buffer()
+            self.portRF.reset_input_buffer()
         else:
-            rfidreader.portRF.flushInput()
+            self.portRF.flushInput()
         self.log.debug("rfid_value is \"%s\"" % rfid_value)
         return rfid_value
 
@@ -166,7 +167,7 @@ class Activator(object):
         self.mtime = 0
         
     def tag_matched(self, ID):
-        self.log.info("ID string matched a member, Activating" % ID)
+        self.log.info("ID string matched a member, Activating")
         self.log.debug("ID string \"%s\" matched, Activating" % ID)
         GPIO.output(23,False) # Turn on door magnet
         GPIO.output(24,False) # Turn off red light
@@ -178,8 +179,8 @@ class Activator(object):
 
     def tag_not_matched(self, ID):
         GPIO.output(23,True) # Make sure door is still unactivated
-        self.log.info("ID string not match any member, Not Activating" % ID)
-        self.log.debug("ID string \"%s\" did not match, Not Activating" % ID)
+        self.log.info("ID string did not match any member, Not Activating")
+        self.log.debug("ID string \"%s\" did not match any member, Not Activating" % ID)
         GPIO.output(24,False) # turn off red light
         GPIO.output(25,False) # Make sure green light is off
         time.sleep(self.light_delay)
@@ -198,10 +199,10 @@ class Activator(object):
                 if None != ID and '' != ID and "" != ID and ID is not None:
                     if k_or_r == "K":
                         self.log.debug("ID starts with K, it is a keypad entry.")
-                        member = memberdb.check_for_member_keypad(ID)
+                        member = self.memberdb.check_for_member_keypad(ID)
                     if k_or_r == "R":
                         self.log.debug("ID starts with R, it is a RFID card entry.")
-                        member = memberdb.check_for_member_rfid(ID)
+                        member = self.memberdb.check_for_member_rfid(ID)
                 else:
                     self.log.info("Keypad string empty after trimming leading K/R character, ignoring.")
 
@@ -217,76 +218,79 @@ class Activator(object):
             rfid = ""
             checksum = ""
             decimalid = 0
-            rfidreader.portRF.flushInput()
-            memberdb.check_mtime()
+            self.rfidreader.portRF.flushInput()
+            self.memberdb.check_mtime()
 
-######################################################################
-# Set up configuration variables.
+def main():
+    ######################################################################
+    # Set up configuration variables.
+    
+    # TODO: delete defaults dict after testing fallback
+    # default_confs = {
+    #     "csv_filename" : "erras_members.csv",
+    #     "rfid_reader_log_filename" : "erras_rfid_reader.log",
+    #     "activate_log_filename" : "erras_activate.log"
+    # }
+    # parser = ConfigParser(default_confs)
+    # TODO: delete the above defaults dict after testing fallback
+    
+    parser = ConfigParser()
+    section_name = "erras"
+    config_file_name = 'erras.ini'
+    # This constructs a file path to the config_file_name in the same directory as the script file.
+    config_path = str(pathlib.Path(__file__).with_name(config_file_name))
+    with open(config_path) as config_file:
+        parser.read_file(config_file)
+    
+    csv_filename = parser.get(section_name, "csv_filename", fallback="erras_members.csv")
+    log_filename = parser.get(section_name, "rfid_reader_log_filename", fallback="erras_rfid_reader.log")
+    activate_log_filename = parser.get(section_name, "activate_log_filename", fallback="erras_activate.log")
+    keypad_field_names_string = parser.get(section_name, "keypad_field_names", fallback="Keypad")
+    rfid_field_names_string = parser.get(section_name, "rfid_field_names", fallback="RFID")
+    
+    # Split up the keypad_field_names_string into a list.
+    # TODO: look into this later for split with escape
+    # https://stackoverflow.com/questions/18092354/python-split-string-without-splitting-escaped-character
+    keypad_field_names = keypad_field_names_string.split(",")
+    rfid_field_names = rfid_field_names_string.split(",")
+    
+    # set up logger
+    logger_name = "erras_activator"
+    logger_format = '%(asctime)s %(levelname)s %(message)s'
+    log = logging.getLogger(logger_name)
+    formatter = logging.Formatter(logger_format)
+    log.setLevel(logging.DEBUG)
+    
+    # https://docs.python.org/2/library/logging.handlers.html
+    # how often the log file is rotated is interval * when
+    # when = S/M/H/D/W0-W6/midnight
+    # so when='S', interval=500 means every 500 seconds.
+    handler = TimedRotatingFileHandler(log_filename, when='D', interval=7, backupCount=20)
+    
+    # handler.setLevel(logging.INFO)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+    
+    # Handler for just logging access results (WARNING level log messages)
+    activate_handler = TimedRotatingFileHandler(activate_log_filename, when='D', interval=1, backupCount=90)
+    activate_handler.setFormatter(formatter)
+    activate_handler.setLevel(logging.WARNING)
+    log.addHandler(activate_handler)
+    
+    # TODO: trying to use systemd for logging causes errors on the raspberrypi.
+    # TODO: still working on figuring it out.
+    # log.addHandler(JournalHandler())
+    
+    # Log the field names
+    for field in keypad_field_names:
+        log.info("keypad field names: %s" % field)
+    for field in rfid_field_names:
+        log.info("RFID field names: %s" % field)
+    
+    memberdb = MemberDb(log, csv_filename, keypad_field_names, rfid_field_names)
+    rfidreader = RfidReader(log)
+    activator = Activator(memberdb, rfidreader, log)
+    activator.loop()
 
-# TODO: delete defaults dict after testing fallback
-# default_confs = {
-#     "csv_filename" : "erras_members.csv",
-#     "rfid_reader_log_filename" : "erras_rfid_reader.log",
-#     "activate_log_filename" : "erras_activate.log"
-# }
-# parser = ConfigParser(default_confs)
-# TODO: delete the above defaults dict after testing fallback
-
-parser = ConfigParser()
-section_name = "erras"
-config_file_name = 'erras.ini'
-# This constructs a file path to the config_file_name in the same directory as the script file.
-config_path = str(pathlib.Path(__file__).with_name(config_file_name))
-with open(config_path) as config_file:
-    parser.read_file(config_file)
-
-csv_filename = parser.get(section_name, "csv_filename", fallback="erras_members.csv")
-log_filename = parser.get(section_name, "rfid_reader_log_filename", fallback="erras_rfid_reader.log")
-log_filename = parser.get(section_name, "activate_log_filename", fallback="erras_activate.log")
-keypad_field_names_string = parser.get(section_name, "keypad_field_names", fallback="Keypad")
-rfid_field_names_string = parser.get(section_name, "rfid_field_names", fallback="RFID")
-
-# Split up the keypad_field_names_string into a list.
-# TODO: look into this later for split with escape
-# https://stackoverflow.com/questions/18092354/python-split-string-without-splitting-escaped-character
-keypad_field_names = keypad_field_names_string.split(",")
-rfid_field_names = rfid_field_names_string.split(",")
-
-# set up logger
-logger_name = "erras_activator"
-logger_format = '%(asctime)s %(levelname)s %(message)s'
-log = logging.getLogger(logger_name)
-formatter = logging.Formatter(logger_format)
-log.setLevel(logging.DEBUG)
-
-# https://docs.python.org/2/library/logging.handlers.html
-# how often the log file is rotated is interval * when
-# when = S/M/H/D/W0-W6/midnight
-# so when='S', interval=500 means every 500 seconds.
-handler = TimedRotatingFileHandler(log_filename, when='D', interval=7, backupCount=20)
-
-# handler.setLevel(logging.INFO)
-handler.setLevel(logging.DEBUG)
-handler.setFormatter(formatter)
-log.addHandler(handler)
-
-# Handler for just logging access results (WARNING level log messages)
-activate_handler = TimedRotatingFileHandler(activate_log_filename, when='D', interval=1, backupCount=90)
-activate_handler.setFormatter(formatter)
-activate_handler.setLevel(logging.WARNING)
-log.addHandler(activate_handler)
-
-# TODO: trying to use systemd for logging causes errors on the raspberrypi.
-# TODO: still working on figuring it out.
-# log.addHandler(JournalHandler())
-
-# Log the field names
-for field in keypad_field_names:
-    log.info("keypad field names: %s" % field)
-for field in rfid_field_names:
-    log.info("RFID field names: %s" % field)
-
-memberdb = MemberDb(log, csv_filename, keypad_field_names, rfid_field_names)
-rfidreader = RfidReader(log)
-activator = Activator(memberdb, rfidreader, log)
-activator.loop()
+main()
