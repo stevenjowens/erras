@@ -1,5 +1,5 @@
 [erras]
-# TODO: We're not actually using clientname for anything in the scripst,et.
+# TODO: We're not actually using clientname for anything in the scripts, etc.
 clientname = your-client-name
 #################################################################
 # wildapricot API configs
