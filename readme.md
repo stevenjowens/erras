@@ -59,6 +59,10 @@ Currently the only option is to edit the code to fix this. Need to move that out
 
 Note, this assumes a raspbian environment, which has certain libraries installed by default.
 
+This also assumes you've configured the raspberrypi to have ssh enabled, and be on the local network.
+
+The example commands below use the default hostname of raspberrypi.local, but it is, of course, highly recommended that you change the hostname and password before doing anything else.
+
 So far Erras consists of five files:
 
 - members.csv contains member data
@@ -86,9 +90,9 @@ $ git clone https://github.com/stevenjowens/erras.git
 First, copy the erras directory and its files onto the raspberry pi (note the trailing backslashes in the rsync command, be sure to include those on both arguments) and copy the erras_services directory's contents onto the raspberry pi:
 
 ```
-$ rsync -avz ./repo/erras/ pi@raspberrypi:/home/pi/erras/
-$ scp ./repo/erras_services/erras_members.service pi@raspberrypi:/home/pi
-$ scp ./repo/erras_services/erras_rfid_reader.service pi@raspberrypi:/home/pi
+$ rsync -avz ./repo/erras/ pi@raspberrypi.local:/home/pi/erras/
+$ scp ./repo/erras_services/erras_members.service pi@raspberrypi.local:/home/pi
+$ scp ./repo/erras_services/erras_rfid_reader.service pi@raspberrypi.local:/home/pi
 ```
 
 Then ssh into the raspberripi and:
