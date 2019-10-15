@@ -14,6 +14,47 @@ they think *"tu erras"* translates as "you wandered":
 
 There is no relationship whatsoever between these two facts.
 
+## Preparing the RaspberryPi
+
+Disable login over serial, enable serial port hardware
+
+Run raspi-config, select:
+
+Interfacing Options/Serial/Disable shell and kernel messages on the serial connection
+
+Select disable for login over serial.
+Select enable for serial port hardware.
+Reboot.
+
+Log back in.
+
+Various sources say I need to put “enable_uart=1” in config.txt on the
+boot partition to get bluetooth to let go of the serial port but still
+have the serial port enabled.  However, other sources say that doing
+the raspi-config commands above should be sufficient, and indeed that
+seems to work.
+
+Erras depends on pyserial, and to install pyserial on raspberrypi you'll need pip3, which does not come bundled with python, so:
+
+```
+$ sudo apt-get update && sudo apt-get install python3-pip
+$ sudo pip3 install pyserial
+$ sudo pip3 install RPi.GPIO
+```
+
+## A Note About Door Lock GPIO Values
+
+Note that this code was written to work with an electronic door lick that wants:
+
+GPIO 23 = TRUE on init, to lock the door
+GPIO 23 = FALSE to unlock the door
+wait 6 seconds to allow entry
+GPIO 23 = TRUE again to re-lock the door
+
+However, some versious of electronic door lock hardware need the opposite values, FALSE to loc the door, TRUE to unlock the door.
+
+Currently the only option is to edit the code to fix this. Need to move that out to the .ini file.
+
 ## Installation Instructions
 
 Note, this assumes a raspbian environment, which has certain libraries installed by default.
@@ -33,14 +74,21 @@ Also, a (slightly hacked) copy of the Wild Apricot API python implementation, Wa
 
 - WaApi.py
 
-To install the system, after cloning it or downloading it from github:
+Note, the following assumes you've cloned or downloaded and unpacked the erras files into a subdirectory named "repo" and are executing the commands from the directory that contains the "repo" subdirectory.
+
+
+To install erras, after cloning it or downloading it from github:
+
+```
+$ git clone https://github.com/stevenjowens/erras.git
+```
 
 First, copy the erras directory and its files onto the raspberry pi (note the trailing backslashes in the rsync command, be sure to include those on both arguments) and copy the erras_services directory's contents onto the raspberry pi:
 
 ```
-$ rsync -avz ./erras/ pi@raspberrypi:/home/pi/erras/
-$ scp ./erras_services/erras_members.service pi@raspberrypi:/home/pi
-$ scp ./erras_services/erras_rfid_reader.service pi@raspberrypi:/home/pi
+$ rsync -avz ./repo/erras/ pi@raspberrypi:/home/pi/erras/
+$ scp ./repo/erras_services/erras_members.service pi@raspberrypi:/home/pi
+$ scp ./repo/erras_services/erras_rfid_reader.service pi@raspberrypi:/home/pi
 ```
 
 Then ssh into the raspberripi and:
