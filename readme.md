@@ -14,6 +14,12 @@ they think *"tu erras"* translates as "you wandered":
 
 There is no relationship whatsoever between these two facts.
 
+## Arduino Code Repo ##
+
+The source code for the arduino (described below) can be found at:
+
+https://github.com/makerchad/Makerspace-RFID
+
 ## Preparing the RaspberryPi
 
 Disable login over serial, enable serial port hardware
