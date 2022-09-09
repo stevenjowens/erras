@@ -50,7 +50,7 @@ $ sudo pip3 install RPi.GPIO
 
 ## A Note About Door Lock GPIO Values
 
-Note that this code was written to work with an electronic door lick that wants:
+Note that this code was written to work with an electronic door lock that wants:
 
 GPIO 23 = TRUE on init, to lock the door
 GPIO 23 = FALSE to unlock the door
