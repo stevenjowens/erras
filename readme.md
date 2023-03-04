@@ -24,10 +24,8 @@ https://github.com/makerchad/Makerspace-RFID
 
 Disable login over serial, enable serial port hardware
 
-Run raspi-config, select:
-
-Interfacing Options/Serial/Disable shell and kernel messages on the serial connection
-
+- Run raspi-config
+- Select Interfacing Options/Serial/Disable shell and kernel messages on the serial connection
 - Select disable for login over serial.
 - Select enable for serial port hardware.
 - Reboot.
