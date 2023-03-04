@@ -28,11 +28,10 @@ Run raspi-config, select:
 
 Interfacing Options/Serial/Disable shell and kernel messages on the serial connection
 
-Select disable for login over serial.
-Select enable for serial port hardware.
-Reboot.
-
-Log back in.
+- Select disable for login over serial.
+- Select enable for serial port hardware.
+- Reboot.
+- Log back in.
 
 Various sources say I need to put “enable_uart=1” in config.txt on the
 boot partition to get bluetooth to let go of the serial port but still
@@ -52,12 +51,12 @@ $ sudo pip3 install RPi.GPIO
 
 Note that this code was written to work with an electronic door lock that wants:
 
-GPIO 23 = TRUE on init, to lock the door
-GPIO 23 = FALSE to unlock the door
-wait 6 seconds to allow entry
-GPIO 23 = TRUE again to re-lock the door
+- set GPIO 23 = TRUE on init, to lock the door
+- set GPIO 23 = FALSE to unlock the door
+- wait 6 seconds to allow entry
+- set GPIO 23 = TRUE again to re-lock the door
 
-However, some versious of electronic door lock hardware need the opposite values, FALSE to loc the door, TRUE to unlock the door.
+However, some versious of electronic door lock hardware need the opposite values, FALSE to lock the door, TRUE to unlock the door.
 
 Currently the only option is to edit the code to fix this. Need to move that out to the .ini file.
 
