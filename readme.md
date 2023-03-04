@@ -14,6 +14,16 @@ they think *"tu erras"* translates as "you wandered":
 
 There is no relationship whatsoever between these two facts.
 
+## Overview
+
+Currently the doors I'm using this code on have:
+
+- an electric lock
+- an RFID reader that outputs RFID values using the Weigand protocol
+- an arduino that reads the Weigand protocol and outputs the data as ASCII over serial
+- a Raspberry PI that reads the ASCII over serial and activates the electric lock as appropriate.
+- a WildApricot account that the PI scripts poll for the user RFID data.
+
 ## Arduino Code Repo ##
 
 The source code for the arduino (described below) can be found at:
