@@ -54,9 +54,9 @@ Note that this code was written to work with an electronic door lock that wants:
 - wait 6 seconds to allow entry
 - set GPIO 23 = TRUE again to re-lock the door
 
-However, some versious of electronic door lock hardware need the opposite values, FALSE to lock the door, TRUE to unlock the door.
+However, some versions of electronic door lock hardware need the opposite values, FALSE to lock the door, TRUE to unlock the door.
 
-Currently the only option is to edit the code to fix this. Need to move that out to the .ini file.
+Currently the only option is to edit the code to change this if you use different door lock hardware. Need to move that out to the .ini file someday.
 
 ## Installation Instructions
 
